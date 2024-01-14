@@ -26,17 +26,27 @@
 
 Implement a secure OTP verification feature seamlessly with our Backend App, powered by [Next.js](http://nestjs.com/) and [Twilio](https://www.twilio.com/docs/messaging) Integration. Elevate user authentication on your website or app by integrating our reliable solution, ensuring a streamlined and secure verification process. Boost the trust and security of your platform effortlessly.
 
+## Table of Contents
+
+1. [Installation](#installation)
+2. [Usage](#usage)
+3. [Configuration](#configuration)
+4. [Endpoints](#endpoints)
+5. [Examples](#examples)
+6. [Contributing](#contributing)
+7. [License](#license)
+
 ## Installation
-### Clone this repository
+### Clone the repository
 ```bash
 $ git clone 
 ```
-### Install Required Modules
+### Install dependencies
 ```bash
 $ npm install 
 ```
 
-## Testing APIs
+## Usage
 
 ```bash
 # development
@@ -49,18 +59,8 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+## Endpoints
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
 
 ## Support
 
