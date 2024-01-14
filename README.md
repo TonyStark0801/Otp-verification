@@ -31,6 +31,8 @@
 
 Implement a secure OTP verification feature seamlessly with our Backend App, powered by [Next.js](http://nestjs.com/) and [Twilio](https://www.twilio.com/docs/messaging) Integration. Elevate user authentication on your website or app by integrating our reliable solution, ensuring a streamlined and secure verification process. Boost the trust and security of your platform effortlessly.
 
+![Architecture](./asset/architecture.png)
+
 ## Table of Contents
 
 1. [Installation](#installation)
@@ -65,23 +67,55 @@ $ npm run start:prod
 
 1. **Send OTP**
    - Endpoint: `/auth/send_otp`
+   - Description: Sends a One-Time Password (OTP) to the user's registered phone number for authentication.
    - Method: POST
-   - Description: Send a One-Time Password (OTP) to the user's registered phone number.
-   - Request Body: JSON format with user's phone number.
+   - URL: `http://localhost:3000/auth/send_otp`
+   - Request Body: JSON format with the user's phone number.
+   
+      ```json
+      {
+        "phone": "9445xxxxxx"
+      }
+      ```
+
+   ### Response
+
+   #### Successful Response (HTTP 201 CREATED)
+   ```json
+   {   
+      "message": "OTP sent successfully.",
+      "VerificationStatus": "pending"
+   }
 
 2. **Verify OTP**
-   - Endpoint: `/auth/verify/`
-   - Method: POST
+   - Endpoint: `/auth/verify_otp`
    - Description: Verify the provided OTP against the sent OTP for the user's phone number.
-   - Request Body: JSON format with user's phone number and the entered OTP.
+   - Method: POST
+   - URL: `http://localhost:3000/auth/verify_otp`
+   - Request Body: JSON format with the user's phone number and the entered OTP.
+   
+      ```json
+      {
+        "phone": "9445xxxxxx",
+        "otp": "123456"
+      }
+      ```
+   ### Response
+
+   #### Successful Response (HTTP 201 CREATED)
+   ```json
+   {   
+      "VerificationStatus": "approved"
+   }
+   ```
 
 
 ## Stay in touch
 
-- Author - [Shubham Mishra](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Shubham Mishra](https://www.linkedin.com/in/shubhammishra8149/)
+- Twitter - [@shubhamMishra](https://twitter.com/mishras85003094)
+
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
