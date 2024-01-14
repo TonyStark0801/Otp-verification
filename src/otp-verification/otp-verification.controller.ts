@@ -11,13 +11,20 @@ import { OtpVerificationService } from './otp-verification.service';
 @Controller('auth')
 export class OtpVerificationController {
   constructor(private readonly otpService: OtpVerificationService) {}
-
-  @Post('/Send')
+  
+  @Post('/send_otp')
   async sendOtp(
     @Body() data: { phone: string },
-  ): Promise<{ VerificationStatus: string }> {
+  ): Promise<{ VerificationStatus: string , message:string}> {
     try {
-      return await this.otpService.sendOtp(data.phone);
+      const Object = await this.otpService.sendOtp(data.phone);
+      
+      if(Object.VerificationStatus === 'pending') {
+        return {
+          message: 'OTP sent successfully.',
+          VerificationStatus: 'pending',
+        };
+      }
     } catch (error) {
       throw new HttpException(
         {
@@ -49,7 +56,7 @@ export class OtpVerificationController {
     }
   }
 
-  @Post('/verify')
+  @Post('/verify_otp')
   async verifyOtp(
     @Body() data: { phone: string; otp: string },
   ): Promise<{ VerificationStatus: string }> {

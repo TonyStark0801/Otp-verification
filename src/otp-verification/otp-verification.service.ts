@@ -7,6 +7,7 @@ export class OtpVerificationService {
   private twilioClient: Twilio;
   private readonly serviceSid: string;
 
+  //Setting Up Twilio Object
   constructor(private readonly configService: ConfigService) {
     const accountSid = configService.get('TWILIO_ACOUNT_SID');
     const authToken = configService.get('TWILIO_AUTH_TOKEN');
@@ -14,9 +15,10 @@ export class OtpVerificationService {
     this.twilioClient = new Twilio(accountSid, authToken);
   }
 
+  
   async sendOtp(phone: string) {
     let phoneNumber = '+91'.concat(phone);
-
+    //Twilio API
     const verification = await this.twilioClient.verify.v2
       .services(this.serviceSid)
       .verifications.create({ to: phoneNumber, channel: 'sms' });
