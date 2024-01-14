@@ -1,6 +1,10 @@
-<p align="center">
+<div align="center">
+<p style="display; ">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+  <a href="http://nestjs.com/" target="blank"><img src="https://cdn.worldvectorlogo.com/logos/twilio.svg" width="200" alt="Twilio Logo" /></a>
 </p>
+</div>
+
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
@@ -22,6 +26,7 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+
 ## Description
 
 Implement a secure OTP verification feature seamlessly with our Backend App, powered by [Next.js](http://nestjs.com/) and [Twilio](https://www.twilio.com/docs/messaging) Integration. Elevate user authentication on your website or app by integrating our reliable solution, ensuring a streamlined and secure verification process. Boost the trust and security of your platform effortlessly.
@@ -30,18 +35,15 @@ Implement a secure OTP verification feature seamlessly with our Backend App, pow
 
 1. [Installation](#installation)
 2. [Usage](#usage)
-3. [Configuration](#configuration)
 4. [Endpoints](#endpoints)
-5. [Examples](#examples)
-6. [Contributing](#contributing)
 7. [License](#license)
 
 ## Installation
-### Clone the repository
+#### Clone the repository
 ```bash
-$ git clone 
+$ git clone https://github.com/TonyStark0801/Otp-verification.git
 ```
-### Install dependencies
+#### Install dependencies
 ```bash
 $ npm install 
 ```
@@ -61,14 +63,22 @@ $ npm run start:prod
 
 ## Endpoints
 
+1. **Send OTP**
+   - Endpoint: `/auth/send_otp`
+   - Method: POST
+   - Description: Send a One-Time Password (OTP) to the user's registered phone number.
+   - Request Body: JSON format with user's phone number.
 
-## Support
+2. **Verify OTP**
+   - Endpoint: `/auth/verify/`
+   - Method: POST
+   - Description: Verify the provided OTP against the sent OTP for the user's phone number.
+   - Request Body: JSON format with user's phone number and the entered OTP.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
+- Author - [Shubham Mishra](https://kamilmysliwiec.com)
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
