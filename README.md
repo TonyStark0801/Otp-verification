@@ -72,7 +72,8 @@ In your project, create or update your environment variables file (e.g., `.env`)
 ```env
 TWILIO_ACCOUNT_SID=your_account_sid
 TWILIO_AUTH_TOKEN=your_auth_token
-TWILIO_PHONE_NUMBER=your_twilio_phone_number
+TWILIO_VERIFICATION_SERVICE_SID=your_verification_sms_service_SID
+TWILIO_PHONE_NUMBER="your_twilio_phone_number"
 ```
 
 ## Usage
