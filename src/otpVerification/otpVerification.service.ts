@@ -22,7 +22,7 @@ export class OtpVerificationService {
     const verification = await this.twilioClient.verify.v2
       .services(this.serviceSid)
       .verifications.create({ to: phoneNumber, channel: 'sms' });
-    return { VerificationStatus: verification.status };
+    return { verificationStatus: verification.status };
   }
 
   async verifyOtp(phone: string, code: string) {
