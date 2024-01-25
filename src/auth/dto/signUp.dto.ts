@@ -14,7 +14,7 @@ export class signUpDto{
     readonly age : number;
 
     @IsNotEmpty()
-    @MinLength(6)
+    @MinLength(10)
     @IsPhoneNumber('IN')
     readonly phone:string;
 

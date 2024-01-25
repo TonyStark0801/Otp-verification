@@ -23,23 +23,31 @@ export class OtpVerificationService {
   
   //Generating and sending Password and OTP
   async sendOtp(phone: string , password:string,otp:string,channel:string) {
-    if(channel=="sms"){
+    try {
+      //Send customised message to the client based on the channel  
+      const  smsBody = `
+      Welcome to Jio Services! Your UserID is registered EMAIL ID\nYour password for Jio Services: ${password}.\nYour OTP for Phone verification is ${otp}`;
+
+      const  whatsappBody = `
+      Hello! I am *Shubham Mishra*. Your UserID is registered _EMAIL ID_.\nYour password for Jio Services: *${password}*.\nYour OTP for Phone verification: *${otp}*`;
+      
       await this.twilioClient.messages.create({
-        body: `Your UserID is registered EMAIL ID and your password for Jio Services: ${password}. Your OTP for Phone verification is ${otp}`,
-        from: this.smsPhoneNumber,
-        to: this.registeredPhoneNumber
-        //Due to restricted free version of twilio. All sms are sent to registered number. This can be replaced with *phone* to sms to client's number.
+        body: channel ==='sms'? smsBody:whatsappBody,
+        from: channel === 'sms'?this.smsPhoneNumber: `whatsapp:${this.whatsappPhoneNumber}`,
+        to: channel === 'sms'? this.registeredPhoneNumber: `whatsapp:${this.registeredPhoneNumber}`
+    
       });
-    }
-    else{
-      await this.twilioClient.messages.create({
-        body: `Hello I am *Shubham Mishra*. Your UserID is registered _EMAIL ID_ and your password for Jio Services: *${password}*. Your OTP for Phone verification is *${otp}*`,
-        from: `whatsapp:${this.whatsappPhoneNumber}`,
-        to:`whatsapp:${this.registeredPhoneNumber}`
-      });
-    }
-    return { message: "Thank you for registering! Your Password and verification OTP has been sent to your phone number"};
+      return { message: "Thank you for registering! Your Password and verification OTP have been sent to your phone number" };
+    
+    } catch (error) {
+        // Handle the error, log it, or return an error response
+        console.error("Error sending message:", error);
+        return { message: "An error occurred while sending the message" };
+      } 
+  
   }
+
+  
 
   // async verifyOtp(phone: string, code: string) {
   //   let phoneNumber = '+91'.concat(phone);
