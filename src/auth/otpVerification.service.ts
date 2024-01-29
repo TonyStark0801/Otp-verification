@@ -29,7 +29,7 @@ export class OtpVerificationService {
       Welcome to Jio Services! Your UserID is registered EMAIL ID\nYour password for Jio Services: ${password}.\nYour OTP for Phone verification is ${otp}`;
 
       const  whatsappBody = `
-      Hello! I am *Shubham Mishra*. Your UserID is registered _EMAIL ID_.\nYour password for Jio Services: *${password}*.\nYour OTP for Phone verification: *${otp}*`;
+      Welcome to  *Jio Services*. Your UserID is registered _EMAIL ID_.\nYour password for further login: *${password}*.\nYour OTP for Phone verification: *${otp}*`;
       
       await this.twilioClient.messages.create({
         body: channel ==='sms'? smsBody:whatsappBody,
