@@ -13,14 +13,17 @@ import * as otpGen from 'otp-generator';
 import { signUpDto } from './dto/signUp.dto';
 import { signInDto } from './dto/signIn.dto';
 import { channel } from 'diagnostics_channel';
+import { resendDto } from './dto/resend.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private userModel:Model<User>,
+
     @InjectModel(Otp.name)
     private otpModel: Model<Otp>,
+
     private jwtService: JwtService,
     private readonly otpService: OtpVerificationService,
   ){}
@@ -50,56 +53,78 @@ export class AuthService {
           console.error("Error:", error.message);
         }
       }
-      return {message: `Email: ${email}\nPassword:${password}\nOTP: ${otp}`}
-      // return this.otpService.sendOtp(phone,password,otp,channel);
+      // return {message: `Email: ${email}\nPassword:${password}\nOTP: ${otp}`}
+      return this.otpService.sendOtp(phone,password,otp,channel);
   }
+
 
   async signIn(singInDto: signInDto){
     const {email, password,otp} = singInDto;
 
     //Finding User in database
     const user = await this.userModel.findOne({ email });
-    const otpObject = await this.otpModel.findOne({email})
+    const otpObject = await this.otpModel.findOne({email}).sort({ createdAt: -1 });
 
-    // if (!user) {
-    //   throw new UnauthorizedException('User not found. Please Register!');
-    // }
-    
-    // // Checking Password
-    // const isPasswordMatched = await bcrypt.compare(password, user.password);
-    // if (!isPasswordMatched) {
-    //   throw new UnauthorizedException('Invalid Password');
-    // }
 
+    //If User Exists check for password!
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException(!user ? 'User not found. Please Register!' : 'Invalid Password');
     }
 
 
+    //Is Phone number Verified, No? Check for OTP.. Is OTP correct?
     if (!user.isVerified) {
       if (!otp) {
         throw new UnauthorizedException('Your phone number is not verified! Please verify it to access your account!');
       }
       else if (!otpObject){
         throw new UnauthorizedException('OTP Expired!');
-      }else{
-        const isOtpMatched = await bcrypt.compare(otp.toString(),otpObject.otp);
-        if(!isOtpMatched){
-          throw new UnauthorizedException('INCORRECT OTP!')
-        }else{
-          user.isVerified = true;
-        await user.save();
-        }
       }
+      const isOtpMatched = await bcrypt.compare(otp.toString(),otpObject.otp);
+      if(!isOtpMatched){
+        throw new UnauthorizedException('INCORRECT OTP!')
+      }
+      user.isVerified = true;
+      await user.save();
+        
+      
       
     }
     
     
-
+    //Generate a JWT token for further login
     const token = this.jwtService.sign({ id: user._id });
     console.log(token)
     return {"name":user.name , "age":user.age,"email":user.email, "phone":user.phone, "isVerified": user.isVerified, "Jwt Token" : token  };
-    // console.log(otp);
+
+  }
+
+  async resendOtp(resendDto:resendDto){
+    const {email,password, phone, channel} = resendDto;
+    
+    //Authenticate user
+    const user = await this.userModel.findOne({ email });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException(!user ? 'User not found. Please Register!' : 'Invalid Password');
+    }
+
+    if(phone != user.phone) throw new UnauthorizedException("Registered Phone number is different!");
+    
+    //Generate New OTP
+    const otp = otpGen.generate(6,{upperCaseAlphabets: false, specialChars: false , lowerCaseAlphabets:false ,});
+    
+    //Update otp in database
+    console.log("otp "+ otp)
+    const hashedOtp= await bcrypt.hash(otp,10);
+    await this.otpModel.create({ email, otp:hashedOtp });
+    
+    
+    // return otp;
+    return this.otpService.resendOtp(phone,otp,channel);
+
+    
+
 
   }
 }

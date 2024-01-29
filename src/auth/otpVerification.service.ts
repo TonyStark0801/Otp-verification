@@ -47,14 +47,30 @@ export class OtpVerificationService {
   
   }
 
+  async resendOtp(phone: string ,otp:string,channel:string) {
+    try {
+      //Send customised message to the client based on the channel  
+      const  smsBody = `
+      Your OTP for Phone verification is ${otp}`;
+
+      const  whatsappBody = `
+      Your OTP for Phone verification: *${otp}*`;
+      
+      const test = await this.twilioClient.messages.create({
+        body: channel ==='sms'? smsBody:whatsappBody,
+        from: channel === 'sms'?this.smsPhoneNumber: `whatsapp:${this.whatsappPhoneNumber}`,
+        to: channel === 'sms'? this.registeredPhoneNumber: `whatsapp:${this.registeredPhoneNumber}`
+    
+      });
+      console.log(test);
+      return { message: "Verification OTP have been sent to your phone number" };
+    
+    } catch (error) {
+        // Handle the error, log it, or return an error response
+        console.error("Error sending message:", error);
+        return { message: "An error occurred while sending the message" };
+      } 
   
-
-  // async verifyOtp(phone: string, code: string) {
-  //   let phoneNumber = '+91'.concat(phone);
-  //   const verification = await this.twilioClient.verify.v2
-  //     .services(this.serviceSid)
-  //     .verificationChecks.create({ to: phoneNumber, code: code });
-
-  //   return { VerificationStatus: verification.status };
-  // }
+  }
+  
 }
