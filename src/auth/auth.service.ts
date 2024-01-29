@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { OtpVerificationService } from './otpVerification.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as otpGen from 'otp-generator';
 
 import { signUpDto } from './dto/signUp.dto';
-import { signInDto } from './dto/signin.dto';
+import { signInDto } from './dto/signIn.dto';
 import { channel } from 'diagnostics_channel';
 
 @Injectable()
@@ -36,12 +36,13 @@ export class AuthService {
       
       //Hashing OTP and Password
       const salt = await bcrypt.genSalt(10)
-      const hashedPassword = await bcrypt.hash(password,salt)
+      const hashedPassword = await bcrypt.hash(password,salt);
+      const hashedOtp= await bcrypt.hash(otp,10);
       
       //Updating User info and OTP in DATABASE
       try {
-        await this.userModel.create({ name, email, age, phone, password });
-        await this.otpModel.create({ email, otp });
+        await this.userModel.create({ name, email, age, phone, password:hashedPassword,isVerified:false });
+        await this.otpModel.create({ email, otp:hashedOtp });
       } catch (error) {
         if (error.code === 11000 || error.code === 11001) {
           throw new BadRequestException("Email already Registed")
@@ -49,23 +50,56 @@ export class AuthService {
           console.error("Error:", error.message);
         }
       }
-      return {message: "successful!"}
+      return {message: `Email: ${email}\nPassword:${password}\nOTP: ${otp}`}
       // return this.otpService.sendOtp(phone,password,otp,channel);
   }
 
-//   async signIn(singInDto: signInDto){
-//     const {email, password} = singInDto;
+  async signIn(singInDto: signInDto){
+    const {email, password,otp} = singInDto;
 
-//     const user = await this.userModel.findOne({email})
-//     if(!user){
-//       throw new UnauthorizedException('Invalid email or Password')
-//     }
-//     const isPasswordMathced = await bcrypt.compare(password, user.password)
-//     if(!isPasswordMathced){
-//       throw new UnauthorizedException('Invalid email or Password')
-//     }
+    //Finding User in database
+    const user = await this.userModel.findOne({ email });
+    const otpObject = await this.otpModel.findOne({email})
+
+    // if (!user) {
+    //   throw new UnauthorizedException('User not found. Please Register!');
+    // }
     
-//     const token = this.jwtService.sign({id:user._id});
-//     return {token};
-//   }
+    // // Checking Password
+    // const isPasswordMatched = await bcrypt.compare(password, user.password);
+    // if (!isPasswordMatched) {
+    //   throw new UnauthorizedException('Invalid Password');
+    // }
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException(!user ? 'User not found. Please Register!' : 'Invalid Password');
+    }
+
+
+    if (!user.isVerified) {
+      if (!otp) {
+        throw new UnauthorizedException('Your phone number is not verified! Please verify it to access your account!');
+      }
+      else if (!otpObject){
+        throw new UnauthorizedException('OTP Expired!');
+      }else{
+        const isOtpMatched = await bcrypt.compare(otp.toString(),otpObject.otp);
+        if(!isOtpMatched){
+          throw new UnauthorizedException('INCORRECT OTP!')
+        }else{
+          user.isVerified = true;
+        await user.save();
+        }
+      }
+      
+    }
+    
+    
+
+    const token = this.jwtService.sign({ id: user._id });
+    console.log(token)
+    return {"name":user.name , "age":user.age,"email":user.email, "phone":user.phone, "isVerified": user.isVerified, "Jwt Token" : token  };
+    // console.log(otp);
+
+  }
 }
