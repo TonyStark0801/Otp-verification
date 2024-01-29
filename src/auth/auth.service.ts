@@ -12,7 +12,6 @@ import * as otpGen from 'otp-generator';
 
 import { signUpDto } from './dto/signUp.dto';
 import { signInDto } from './dto/signIn.dto';
-import { channel } from 'diagnostics_channel';
 import { resendDto } from './dto/resend.dto';
 
 @Injectable()
@@ -28,8 +27,6 @@ export class AuthService {
     private readonly otpService: OtpVerificationService,
   ){}
 
-
-  
   async signUp(signUpDto:signUpDto):Promise<{message:string}>{
       const {name,email, age, phone, channel} = signUpDto;
       
@@ -65,12 +62,10 @@ export class AuthService {
     const user = await this.userModel.findOne({ email });
     const otpObject = await this.otpModel.findOne({email}).sort({ createdAt: -1 });
 
-
     //If User Exists check for password!
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException(!user ? 'User not found. Please Register!' : 'Invalid Password');
     }
-
 
     //Is Phone number Verified, No? Check for OTP.. Is OTP correct?
     if (!user.isVerified) {
@@ -86,11 +81,7 @@ export class AuthService {
       }
       user.isVerified = true;
       await user.save();
-        
-      
-      
     }
-    
     
     //Generate a JWT token for further login
     const token = this.jwtService.sign({ id: user._id });
@@ -101,30 +92,18 @@ export class AuthService {
 
   async resendOtp(resendDto:resendDto){
     const {email,password, phone, channel} = resendDto;
-    
-    //Authenticate user
     const user = await this.userModel.findOne({ email });
-
+  
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException(!user ? 'User not found. Please Register!' : 'Invalid Password');
     }
 
     if(phone != user.phone) throw new UnauthorizedException("Registered Phone number is different!");
     
-    //Generate New OTP
     const otp = otpGen.generate(6,{upperCaseAlphabets: false, specialChars: false , lowerCaseAlphabets:false ,});
-    
-    //Update otp in database
-    console.log("otp "+ otp)
     const hashedOtp= await bcrypt.hash(otp,10);
+    
     await this.otpModel.create({ email, otp:hashedOtp });
-    
-    
-    // return otp;
     return this.otpService.resendOtp(phone,otp,channel);
-
-    
-
-
   }
 }

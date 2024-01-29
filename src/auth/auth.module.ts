@@ -18,7 +18,6 @@ import { OtpVerificationService } from './otpVerification.service';
           signOptions:{
             expiresIn: config.get<string|number>('JWT_EXPIRES'),
           } 
-
         }
       },
       inject:[ConfigService],
