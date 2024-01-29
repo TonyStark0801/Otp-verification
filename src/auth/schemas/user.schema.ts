@@ -21,6 +21,9 @@ export class User{
     
     @Prop({minlength:6})
     password:string;
+
+    @Prop()
+    isVerified:boolean;
    
 }
 
